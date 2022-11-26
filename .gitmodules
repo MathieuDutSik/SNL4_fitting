@@ -1,0 +1,7 @@
+[submodule "WW3_noaa"]
+	path = WW3_noaa
+	url = https://github.com/NOAA-EMC/WW3
+[submodule "WW3_ifremer_GQM"]
+	path = WW3_ifremer_GQM
+	url = https://github.com/umr-lops/WW3
+	branch = GQM
