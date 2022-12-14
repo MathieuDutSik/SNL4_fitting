@@ -1,4 +1,5 @@
 PROGRAM COMPUTE_S_D
+  USE NETCDF
   IMPLICIT NONE
 
   integer opt
@@ -6,14 +7,33 @@ PROGRAM COMPUTE_S_D
   integer ncid_i, ncid_o
   integer, dimension(nf90_max_var_dims) :: dimids
   integer nsamp, SNLopt
-  REAL, allocatable(*) :: SPEC
+  INTEGER NTH, NFR, NSPEC
+  INTEGER iret, ISTAT
+  INTEGER ncid_i, ncid_o
+  INTEGER nth_dims, nfr_dims, nsamp_dims
+  INTEGER var_id, varid_S, varid_D
+  INTEGER ISAMP, NSAMP
+  CHARACTER(LEN=40) :: INPNAME
+  INTEGER :: FHNDL = 43
+  REAL, allocatable(*) :: SPEC, S, D
+  NAMELIST /PROC/ FILEI, FILEO, SNLopt
+  NAMELIST /GRID/ NTH, NFR
 
-  NAMELIST /PROC/ FILEI, FILEO, &
-    & NTH, NFR, SNLopt
+  nbArg=command_argument_count()
+  if (nbArg .ne. 1) THEN
+     STOP 'Number of argument should be 1'
+  END IF
+  CALL GET_COMMAND_ARGUMENT(1, INPNAME)
 
 
+  OPEN(FHNDL, FILE = TRIM(INPNAME))
+  READ(FHNDL, NML = PROC)
+  READ(FHNDL, NML = GRID)
+  CLOSE(FHNDL)
 
-  allocate(SPEC(NSPEC))
+  NSPEC = NTH * NFR
+
+  allocate(SPEC(NSPEC), S(NSPEC), D(NSPEC))
   !
   iret=NF90_OPEN(TRIM(FILEI), NF90_NOWRITE, ncid_i)
   CALL GENERIC_NETCDF_ERROR_EVAL(1, ISTAT)
@@ -34,9 +54,9 @@ PROGRAM COMPUTE_S_D
   CALL GENERIC_NETCDF_ERROR_EVAL(3, iret)
   iret = nf90_def_dim(ncid_o, 'NSAMP', NSAMP, nsamp_dims)
   CALL GENERIC_NETCDF_ERROR_EVAL(3, iret)
-  iret=nf90_def_var(ncid, 'S',NF90_REAL, (/ nth_dims, nfr_dims, nsamp_dims /),var_id)
+  iret=nf90_def_var(ncid, 'S', NF90_REAL, (/ nth_dims, nfr_dims, nsamp_dims /),var_id)
   CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
-  iret=nf90_def_var(ncid, 'D',NF90_REAL, (/ nth_dims, nfr_dims, nsamp_dims /),var_id)
+  iret=nf90_def_var(ncid, 'D', NF90_REAL, (/ nth_dims, nfr_dims, nsamp_dims /),var_id)
   CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
   iret=nf90_close(ncid_o)
   CALL GENERIC_NETCDF_ERROR_EVAL(4, iret)
@@ -68,7 +88,7 @@ PROGRAM COMPUTE_S_D
   iret=nf90_close(ncid_o)
   CALL GENERIC_NETCDF_ERROR_EVAL(4, iret)
   !
-  deallocate(SPEC)
+  deallocate(SPEC, S, D)
   !
 CONTAINS
   SUBROUTINE GENERIC_NETCDF_ERROR_EVAL(idx, iret)
@@ -89,6 +109,23 @@ CONTAINS
   REAL, intent(in) :: DEPTH, WNMEAN
   INTEGER, intent(in) :: SNLopt
   REAL, intent(out) :: S(NSPEC), D(NSPEC)
+  IF (SNLopt .eq. 1) THEN
+     CALL W3SNL1 ( SPEC, CG1, WNMEAN*DEPTH,        S, D )
+  END IF
+  IF (SNLopt .eq. 2) THEN
+     CALL W3SNL2 ( SPEC, CG1, WN1, DEPTH,          S, D )
+  END IF
+  IF (SNLopt .eq. 3) THEN
+     CALL W3SNL3 ( SPEC, CG1, WN1, DEPTH,          S, D )
+  END IF
+  IF (SNLopt .eq. 4) THEN
+        CALL W3SNL4 ( SPEC, CG1, WN1, DEPTH,          S, D )
+  END IF
+  IF (SNLopt .eq. 5) THEN
+     CALL W3SNL5 ( SPEC, CG1, WN1, FMEAN, QI5TSTART,          &
+                            U10ABS, U10DIR, JSEA, S, D, QR5KURT)
+  END IF
+
   END SUBROUTINE SNL_EVAL
 
 END PROGRAM COMPUTE_S_D
