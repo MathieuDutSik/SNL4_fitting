@@ -12,7 +12,7 @@ F90OPTI = -pg -O1 -ffree-line-length-0 -fbacktrace -Wall
 
 
 NETCDF_INC = -I$(NETCDF_INCDIR)
-NETCDF_LIB = $(NETCDF_FORTRAN_LINK)
+NETCDF_LIB = $(NETCDF_FORTRAN_LINK) -lnetcdf
 
 
 OBJ_S_D = convert_netcdf_binary_ww3.o

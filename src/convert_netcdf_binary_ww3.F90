@@ -1,33 +1,33 @@
 PROGRAM CONVERT_NETCDF_BINARY
   USE NETCDF
   IMPLICIT NONE
-
-  integer opt
   CHARACTER*40 FILEI, FILEO
-  integer ncid_i, ncid_o
+  integer ncid_i
   integer, dimension(nf90_max_var_dims) :: dimids
-  integer nsamp, SNLopt
+  integer nsamp, NOPTS
   INTEGER NTH, NK, NSPEC
-  INTEGER iret, ISTAT
-  INTEGER ncid_i, ncid_o
-  INTEGER nth_dims, nfr_dims, nsamp_dims
-  INTEGER var_id, varid_S, varid_D
+  INTEGER I, J, nbArg
+  INTEGER iret, ISTAT, ierr
   INTEGER varid_a, varid_dw
   INTEGER varid_wnd_mag, varid_wnd_dir, varid_tau_mag, varid_tau_dir
   INTEGER varid_rhoair, varid_seto, varid_as
   INTEGER varid_curr_mag, varid_curr_dir
   INTEGER varid_ice, varid_iceh, varid_icef
 
-  INTEGER ISAMP, NSAMP
   CHARACTER(LEN=40) :: INPNAME
   INTEGER :: FHNDL = 43
-  REAL, allocatable(*) :: SPEC, SING_ARR
-  CHARACTER(LEN=40), ALLOCATABLE :: PTNME(:)
+  REAL, allocatable :: SPEC(:), SING_ARR(:)
   REAL, ALLOCATABLE :: PTLOC(:,:)
+  CHARACTER(LEN=40), ALLOCATABLE :: PTNME(:)
   CHARACTER(LEN=13), PARAMETER :: GRDID = "unused"
   CHARACTER(LEN=31), PARAMETER :: IDSTR = 'WAVEWATCH III POINT OUTPUT FILE'
   CHARACTER(LEN=10), PARAMETER :: VEROPT = '2021-04-06'
-  NAMELIST /PROC/ FILEI, FILEO, SNLopt
+  REAL CAO_I, CDO_I, ASO_I, DAIRO_I, DPO_I
+  REAL WAO_I, WDO_I, TAUAO_I, TAUDO_I
+  REAL ICEO_I, ICEFO_I, ICEHO_I, ZET_SETO_I
+  INTEGER II_I, IL_I, IW_I
+  INTEGER NDSOP
+  NAMELIST /PROC/ FILEI, FILEO
   NAMELIST /GRID/ NTH, NK
 
   nbArg=command_argument_count()
@@ -42,11 +42,11 @@ PROGRAM CONVERT_NETCDF_BINARY
   READ(FHNDL, NML = GRID)
   CLOSE(FHNDL)
 
-  NSPEC = NTH * NFR
+  NSPEC = NTH * NK
   NDSOP = 20
 
 
-  allocate(SPEC(NSPEC), S(NSPEC), D(NSPEC))
+  allocate(SPEC(NSPEC), SING_ARR(1))
   !
   iret=NF90_OPEN(TRIM(FILEI), NF90_NOWRITE, ncid_i)
   CALL GENERIC_NETCDF_ERROR_EVAL(1, ISTAT)
@@ -78,14 +78,14 @@ PROGRAM CONVERT_NETCDF_BINARY
   CALL GENERIC_NETCDF_ERROR_EVAL(14, ISTAT)
   iret=nf90_inq_varid(ncid_i, "ICEF", varid_icef)
   CALL GENERIC_NETCDF_ERROR_EVAL(15, ISTAT)
-  ISTAT = NF90_INQUIRE_VARIABLE(ncid_i, varid, dimids = dimids)
+  ISTAT = NF90_INQUIRE_VARIABLE(ncid_i, varid_a, dimids = dimids)
   CALL GENERIC_NETCDF_ERROR_EVAL(16, ISTAT)
   ISTAT = nf90_inquire_dimension(ncid_i, dimids(3), len = nsamp)
   CALL GENERIC_NETCDF_ERROR_EVAL(17, ISTAT)
   !
   ! now write to it
   !
-  OPEN(NDSOP, FILE=FileOUT, form='unformatted', IOSTAT=IERR)
+  OPEN(NDSOP, FILE=FILEO, form='unformatted', IOSTAT=IERR)
   NOPTS = NSAMP
   allocate(PTLOC(2,NSAMP), PTNME(NSAMP))
   WRITE (NDSOP) IDSTR, VEROPT, NK, NTH, NOPTS
@@ -107,9 +107,13 @@ PROGRAM CONVERT_NETCDF_BINARY
      CALL GENERIC_NETCDF_ERROR_EVAL(21, ISTAT)
      WDO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_tau_dir, SING_ARR, start = (/ I /), count = (/ 1 /))
+     ISTAT = NF90_GET_VAR(ncid_i, varid_tau_mag, SING_ARR, start = (/ I /), count = (/ 1 /))
      CALL GENERIC_NETCDF_ERROR_EVAL(22, ISTAT)
      TAUAO_I = SING_ARR(1)
+     !
+     ISTAT = NF90_GET_VAR(ncid_i, varid_tau_dir, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(22, ISTAT)
+     TAUDO_I = SING_ARR(1)
      !
      ISTAT = NF90_GET_VAR(ncid_i, varid_rhoair, SING_ARR, start = (/ I /), count = (/ 1 /))
      CALL GENERIC_NETCDF_ERROR_EVAL(23, ISTAT)
@@ -141,7 +145,7 @@ PROGRAM CONVERT_NETCDF_BINARY
      !
      ISTAT = NF90_GET_VAR(ncid_i, varid_icef, SING_ARR, start = (/ I /), count = (/ 1 /))
      CALL GENERIC_NETCDF_ERROR_EVAL(30, ISTAT)
-     OCEFO_I = SING_ARR(1)
+     ICEFO_I = SING_ARR(1)
      !
      IW_I = 0
      II_I = 0
@@ -164,16 +168,18 @@ PROGRAM CONVERT_NETCDF_BINARY
   iret=nf90_close(ncid_i)
   CALL GENERIC_NETCDF_ERROR_EVAL(31, iret)
   !
-  deallocate(SPEC, S, D, SING_ARR)
+  deallocate(SPEC, SING_ARR)
   !
 CONTAINS
   SUBROUTINE GENERIC_NETCDF_ERROR_EVAL(idx, iret)
-  integer, intent(in) :: iret, idx
-  IF (iret .NE. nf90_noerr) THEN
-     CHRERR = nf90_strerror(iret)
-     Print *, 'Error Message: ', TRIM(CHRERR)
-     STOP 'COMPUTE_S_D failed'
-  ENDIF
+    integer, intent(in) :: iret, idx
+    character(len=100) :: CHRERR
+    IF (iret .NE. nf90_noerr) THEN
+       CHRERR = nf90_strerror(iret)
+       Print *, "Error at GENERIC_NETCDF_ERROR_EVAL, idx=", idx
+       Print *, 'Error Message: ', TRIM(CHRERR)
+       STOP 'COMPUTE_S_D failed'
+    ENDIF
   END SUBROUTINE GENERIC_NETCDF_ERROR_EVAL
 
 END PROGRAM CONVERT_NETCDF_BINARY
