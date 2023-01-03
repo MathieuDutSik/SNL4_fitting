@@ -12,10 +12,16 @@ PROGRAM CONVERT_NETCDF_BINARY
   INTEGER ncid_i, ncid_o
   INTEGER nth_dims, nfr_dims, nsamp_dims
   INTEGER var_id, varid_S, varid_D
+  INTEGER varid_a, varid_dw
+  INTEGER varid_wnd_mag, varid_wnd_dir, varid_tau_mag, varid_tau_dir
+  INTEGER varid_rhoair, varid_seto, varid_as
+  INTEGER varid_curr_mag, varid_curr_dir
+  INTEGER varid_ice, varid_iceh, varid_icef
+
   INTEGER ISAMP, NSAMP
   CHARACTER(LEN=40) :: INPNAME
   INTEGER :: FHNDL = 43
-  REAL, allocatable(*) :: SPEC, S, D
+  REAL, allocatable(*) :: SPEC, SING_ARR
   CHARACTER(LEN=40), ALLOCATABLE :: PTNME(:)
   REAL, ALLOCATABLE :: PTLOC(:,:)
   CHARACTER(LEN=13), PARAMETER :: GRDID = "unused"

@@ -11,8 +11,8 @@ F90OPTI = -pg -O1 -ffree-line-length-0 -fbacktrace -Wall
 
 
 
-NETCDF_INC = -I/usr/local/include
-NETCDF_LIB = -L/usr/local/lib -lnetcdff
+NETCDF_INC = -I$(NETCDF_INCDIR)
+NETCDF_LIB = $(NETCDF_FORTRAN_LINK)
 
 
 OBJ_S_D = convert_netcdf_binary_ww3.o
