@@ -1,4 +1,4 @@
-PROG=compute_S_D
+PROG=convert_netcdf_binary_ww3
 
 FFLAGS = -DST42
 
@@ -15,7 +15,7 @@ NETCDF_INC = -I/usr/local/include
 NETCDF_LIB = -L/usr/local/lib -lnetcdff
 
 
-OBJ_S_D = compute_S_D.o w3snl1md.o w3snl2md.o w3snl3md.o w3snl4md.o w3snl5md.o w3snlsmd.o
+OBJ_S_D = convert_netcdf_binary_ww3.o
 
 
 
