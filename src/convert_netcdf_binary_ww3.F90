@@ -7,7 +7,7 @@ PROGRAM CONVERT_NETCDF_BINARY
   integer nsamp, NOPTS
   INTEGER NTH, NK, NSPEC
   INTEGER I, J, nbArg
-  INTEGER iret, ISTAT, ierr
+  INTEGER iret, ierr
   INTEGER varid_a, varid_dw
   INTEGER varid_wnd_mag, varid_wnd_dir, varid_tau_mag, varid_tau_dir
   INTEGER varid_rhoair, varid_seto, varid_as
@@ -49,39 +49,39 @@ PROGRAM CONVERT_NETCDF_BINARY
   allocate(SPEC(NSPEC), SING_ARR(1))
   !
   iret=NF90_OPEN(TRIM(FILEI), NF90_NOWRITE, ncid_i)
-  CALL GENERIC_NETCDF_ERROR_EVAL(1, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(1, iret)
   iret=nf90_inq_varid(ncid_i, "A", varid_a)
-  CALL GENERIC_NETCDF_ERROR_EVAL(2, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(2, iret)
   iret=nf90_inq_varid(ncid_i, "DW", varid_dw)
-  CALL GENERIC_NETCDF_ERROR_EVAL(3, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(3, iret)
   iret=nf90_inq_varid(ncid_i, "WND_MAG", varid_wnd_mag)
-  CALL GENERIC_NETCDF_ERROR_EVAL(4, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(4, iret)
   iret=nf90_inq_varid(ncid_i, "WND_DIR", varid_wnd_dir)
-  CALL GENERIC_NETCDF_ERROR_EVAL(5, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(5, iret)
   iret=nf90_inq_varid(ncid_i, "TAU_MAG", varid_tau_mag)
-  CALL GENERIC_NETCDF_ERROR_EVAL(6, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(6, iret)
   iret=nf90_inq_varid(ncid_i, "TAU_DIR", varid_tau_dir)
-  CALL GENERIC_NETCDF_ERROR_EVAL(7, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(7, iret)
   iret=nf90_inq_varid(ncid_i, "RHOAIR", varid_rhoair)
-  CALL GENERIC_NETCDF_ERROR_EVAL(8, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(8, iret)
   iret=nf90_inq_varid(ncid_i, "SETUP", varid_seto)
-  CALL GENERIC_NETCDF_ERROR_EVAL(9, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(9, iret)
   iret=nf90_inq_varid(ncid_i, "AS", varid_as)
-  CALL GENERIC_NETCDF_ERROR_EVAL(10, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(10, iret)
   iret=nf90_inq_varid(ncid_i, "CURR_MAG", varid_curr_mag)
-  CALL GENERIC_NETCDF_ERROR_EVAL(11, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(11, iret)
   iret=nf90_inq_varid(ncid_i, "CURR_DIR", varid_curr_dir)
-  CALL GENERIC_NETCDF_ERROR_EVAL(12, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(12, iret)
   iret=nf90_inq_varid(ncid_i, "ICE", varid_ice)
-  CALL GENERIC_NETCDF_ERROR_EVAL(13, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(13, iret)
   iret=nf90_inq_varid(ncid_i, "ICEH", varid_iceh)
-  CALL GENERIC_NETCDF_ERROR_EVAL(14, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(14, iret)
   iret=nf90_inq_varid(ncid_i, "ICEF", varid_icef)
-  CALL GENERIC_NETCDF_ERROR_EVAL(15, ISTAT)
-  ISTAT = NF90_INQUIRE_VARIABLE(ncid_i, varid_a, dimids = dimids)
-  CALL GENERIC_NETCDF_ERROR_EVAL(16, ISTAT)
-  ISTAT = nf90_inquire_dimension(ncid_i, dimids(3), len = nsamp)
-  CALL GENERIC_NETCDF_ERROR_EVAL(17, ISTAT)
+  CALL GENERIC_NETCDF_ERROR_EVAL(15, iret)
+  iret = NF90_INQUIRE_VARIABLE(ncid_i, varid_a, dimids = dimids)
+  CALL GENERIC_NETCDF_ERROR_EVAL(16, iret)
+  iret = nf90_inquire_dimension(ncid_i, dimids(3), len = nsamp)
+  CALL GENERIC_NETCDF_ERROR_EVAL(17, iret)
   !
   ! now write to it
   !
@@ -92,59 +92,59 @@ PROGRAM CONVERT_NETCDF_BINARY
   WRITE (NDSOP) ((PTLOC(J,I),J=1,2),I=1,NOPTS), (PTNME(I),I=1,NOPTS)
 
   DO I=1,NSAMP
-     ISTAT = NF90_GET_VAR(ncid_i, varid_a, SPEC,    start = (/ 1, 1, I /), count = (/ NTH, NK, 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(18, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_a, SPEC,    start = (/ 1, 1, I /), count = (/ NTH, NK, 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(18, iret)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_dw, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(19, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_dw, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(19, iret)
      DPO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_wnd_mag, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(20, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_wnd_mag, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(20, iret)
      WAO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_wnd_dir, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(21, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_wnd_dir, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(21, iret)
      WDO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_tau_mag, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(22, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_tau_mag, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(22, iret)
      TAUAO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_tau_dir, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(22, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_tau_dir, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(22, iret)
      TAUDO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_rhoair, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(23, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_rhoair, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(23, iret)
      DAIRO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_seto, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(24, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_seto, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(24, iret)
      ZET_SETO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_as, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(25, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_as, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(25, iret)
      ASO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_curr_mag, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(26, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_curr_mag, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(26, iret)
      CAO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_curr_dir, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(27, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_curr_dir, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(27, iret)
      CDO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_ice, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(28, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_ice, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(28, iret)
      ICEO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_iceh, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(29, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_iceh, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(29, iret)
      ICEHO_I = SING_ARR(1)
      !
-     ISTAT = NF90_GET_VAR(ncid_i, varid_icef, SING_ARR, start = (/ I /), count = (/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_EVAL(30, ISTAT)
+     iret = NF90_GET_VAR(ncid_i, varid_icef, SING_ARR, start = (/ I /), count = (/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_EVAL(30, iret)
      ICEFO_I = SING_ARR(1)
      !
      IW_I = 0

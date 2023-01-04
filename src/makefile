@@ -5,14 +5,15 @@ FFLAGS = -DST42
 F90 = gfortran
 
 #GFORTRAN
-F90OPTI = -pg -O1 -ffree-line-length-0 -fbacktrace -Wall
+#F90OPTI = -pg -O1 -ffree-line-length-0 -fbacktrace -Wall
+F90OPTI = -O2 -Wall
 #F90OPTI = -g -O1 -ffree-line-length-0 -fbacktrace 
 #F90OPTI = -g -Wall -Wextra -Warray-temporaries -Wconversion -fbacktrace -ffree-line-length-0 -fcheck=all -ffpe-trap=zero,overflow -finit-real=nan
 
 
 
 NETCDF_INC = -I$(NETCDF_INCDIR)
-NETCDF_LIB = $(NETCDF_FORTRAN_LINK) -lnetcdf
+NETCDF_LIB = $(NETCDF_FORTRAN_LINK)
 
 
 OBJ_S_D = convert_netcdf_binary_ww3.o
